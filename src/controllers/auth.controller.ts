@@ -1,14 +1,17 @@
 import type { Request, Response } from "express";
 import { matchedData } from "express-validator";
-import { BadRequestError, NotFoundError } from "../../../common/errors.ts";
+import { BadRequestError, NotFoundError } from "../common/errors.ts";
 import type {
   LoginCredentials,
   RegisterRequestBody,
-} from "../../../common/types.ts";
-import { User } from "../../models/user.ts";
+} from "../common/types.ts";
+import { User } from "../models/user.ts";
 import process from "node:process";
 import jwt from "jsonwebtoken";
-import { transporter } from "../../settings.ts";
+import { transporter } from "../settings.ts";
+import express from "express";
+import { body, param } from "express-validator";
+
 
 export async function login(request: Request, response: Response) {
   const { email, password }: LoginCredentials = matchedData(request);
@@ -67,3 +70,24 @@ export function verify(request: Request, response: Response) {
   User.create(payload);
   response.json({ success: true });
 }
+
+export const authRouter = express.Router();
+
+authRouter.post(
+  "/login",
+  body("email").notEmpty().trim().isEmail(),
+  body("password").notEmpty().trim().isLength({ min: 2, max: 16 }),
+  login
+);
+
+authRouter.post(
+  "/register",
+  body("email").notEmpty().trim().isEmail(),
+  body("password").notEmpty().trim().isLength({ min: 4, max: 16 }),
+  body("confirmPassword").notEmpty().trim().isLength({ min: 4, max: 16 }),
+  body("firstName").notEmpty().trim().isLength({ min: 2, max: 32 }),
+  body("lastName").notEmpty().trim().isLength({ min: 2, max: 32 }),
+  register
+);
+
+authRouter.get("/verify/:token", param("token").notEmpty().isJWT(), verify);

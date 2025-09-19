@@ -5,7 +5,7 @@
   "license": "ISC",
   "author": "Soham Jobanputra",
   "type": "module",
-  "main": "src/index.ts",
+  "main": "index.ts",
   "scripts": {
     "dev": "nodemon",
     "manage": "ts-node manage.ts"

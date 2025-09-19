@@ -6,17 +6,17 @@ import express, {
 } from "express";
 import console from "node:console";
 import { User } from "./src/models/user.ts";
-import { usersRouter } from "./src/con/users/router.ts";
+import { usersRouter } from "./src/controllers/users.controller.ts";
 import {
   BadRequestError,
   NotFoundError,
   UnauthorizedError,
   ValidationError,
-} from "../common/errors.ts";
+} from "./src/common/errors.ts";
 import bodyParser from "body-parser";
 import cookieSession from "cookie-session";
 import process from "node:process";
-import { authRouter } from "./apis/auth/router.ts";
+import { authRouter } from "./src/controllers/auth.controller.ts";
 
 const app = express();
 const port = 3000;
@@ -29,7 +29,7 @@ function initApp() {
     cookieSession({
       name: "session",
       keys: [process.env["SECRET_KEY"]!, "other keys"],
-    }),
+    })
   );
 
   app.use("/users", usersRouter);
@@ -40,7 +40,7 @@ function initApp() {
       error: Error,
       _request: Request,
       response: Response,
-      next: NextFunction,
+      next: NextFunction
     ) => {
       if (error instanceof NotFoundError) {
         response.status(404).json({
@@ -60,7 +60,7 @@ function initApp() {
       }
 
       next();
-    },
+    }
   );
 
   app.listen(port, () => {
